@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Highscore</title>
+    <meta name="viewport" content="width=device-width, initial-scale=0.5" />
+    <meta charset="utf-8" />
+    <style>
+      * {
+        margin: 0;
+        box-sizing: border-box;
+        padding: 0;
+        z-index: 0;
+      }
+
+      body {
+        background-color: rgb(68, 68, 68);
+      }
+
+      button {
+        border-radius: 20px;
+        border-width: 1px;
+        background-color: #f38539;
+      }
+      .upper {
+        border: 2px solid whitesmoke;
+        width: 100vw;
+        height: 50vh;
+      }
+
+      .lower {
+        border: 2px solid whitesmoke;
+        width: 100%;
+        height: 50vh;
+      }
+      .middle {
+        background-color: whitesmoke;
+        width: 200px;
+        height: 100px;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        position: absolute;
+        z-index: 10;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        display: flex;
+        border-radius: 20px;
+        border-color: black;
+      }
+
+      .score {
+        font-size: 40px;
+      }
+
+      .ll {
+        width: 50%;
+        height: 100%;
+        /*background-color: wheat;*/
+        float: left;
+        align-items: center;
+        justify-content: center;
+        display: flex;
+        border: 2px solid whitesmoke;
+      }
+
+      .input {
+        font-size: 50px;
+        width: 100px;
+        padding: 5px;
+      }
+
+      .ok {
+        width: 100px;
+        height: 40px;
+        text-align: center;
+      }
+
+      .labelGuess {
+        color: whitesmoke;
+        font-size: 35px;
+      }
+
+      .highscore {
+        text-align: center;
+        color: whitesmoke;
+      }
+
+      .again {
+        margin: 20px;
+        height: 40px;
+        width: 100px;
+      }
+
+      h2 {
+        width: fit-content;
+        display: inline;
+      }
+
+      .upper {
+        display: flex;
+        flex-flow: wrap;
+        align-items: center;
+        justify-content: center;
+        color: whitesmoke;
+      }
+
+      h1 {
+        font-size: 70px;
+      }
+
+      .lr {
+        height: 100%;
+        width: 50%;
+        /*background-color: yellow;*/
+        float: right;
+        align-items: center;
+        justify-content: center;
+        display: flex;
+        flex-direction: column;
+        border: 2px solid whitesmoke;
+      }
+
+      .input {
+        border-radius: 20px;
+        border-color: black;
+        background-color: gray;
+        color: whitesmoke;
+      }
+
+      /*.flexSep {
+        flex-basis: 100%;
+      }*/
+    </style>
+  </head>
+  <body>
+    <div class="upper">
+      <h1 class="hint">Guess the number</h1>
+    </div>
+    <div class="middle">
+      <h1 class="score">score</h1>
+    </div>
+    <div class="lower">
+      <div class="ll">
+        <section>
+          <label for="Guess" class="labelGuess">Guess:</label>
+          <br />
+          <br />
+          <input type="number" class="input" />
+          <br />
+          <br />
+          <button class="ok">Submit</button>
+        </section>
+      </div>
+      <div class="lr">
+        <div class="lru">
+          <h2 class="highscore">Highscore:&nbsp</h2>
+          <h2 class="highscore" id="highscoreValue">0</h2>
+        </div>
+        <div class="lrd">
+          <button class="again">Again?</button>
+        </div>
+      </div>
+    </div>
+    <script>
+      "use strict";
+      //vars
+      let score = 20;
+      let highscore = 0;
+      let value = 0;
+      //objs
+      let scoreVal = document.querySelector(".score");
+      let highscoreVal = document.querySelector("#highscoreValue");
+      let hintVal = document.querySelector(".hint");
+      let inputVal = 0;
+      let win = false;
+
+      const submitAudio = new Audio();
+      const winAudio = new Audio();
+      const loseAudio = new Audio();
+      submitAudio.src = "click.wav";
+      winAudio.src = "win.wav";
+      loseAudio.src = "lose.wav";
+
+      function setHeading(place, heading) {
+        place.textContent = heading;
+      }
+
+      function setButtonColor(color) {
+        let buttons = document.querySelectorAll("button");
+        for (let i = 0; i < buttons.length; i++) {
+          buttons[i].style.backgroundColor = color;
+        }
+      }
+
+      value = Math.trunc(Math.random() * 10 + 1);
+      console.log("Value: " + value);
+
+      document.querySelector(".ok").addEventListener("click", function () {
+        inputVal = Number(document.querySelector(".input").value);
+        console.log("Input: " + inputVal);
+
+        submitAudio.play();
+
+        if (score > 0) {
+          if (inputVal === value || win) {
+            setHeading(hintVal, "Correct! 👍");
+            document.querySelector("body").style.backgroundColor = "Green";
+            if (score > highscore) highscore = score;
+            win = true;
+            setButtonColor("Whitesmoke");
+            setHeading(highscoreVal, highscore);
+            win.play();
+          } else if (inputVal > value) {
+            setHeading(hintVal, "Too high! 📈");
+            document.querySelector("body").style.backgroundColor = "Red";
+            score--;
+            setButtonColor("Whitesmoke");
+            setHeading(scoreVal, score);
+          } else {
+            setHeading(hintVal, "Too Low! 📉");
+            document.querySelector("body").style.backgroundColor = "Red";
+            score--;
+            setButtonColor("Whitesmoke");
+            setHeading(scoreVal, score);
+          }
+          if (score === 0) {
+            setHeading(hintVal, "Game Over! 😔");
+            setButtonColor("Whitesmoke");
+            loseAudio.play();
+          }
+        }
+      });
+
+      document.querySelector(".again").addEventListener("click", function () {
+        document.querySelector("body").style.backgroundColor =
+          "rgb(68, 68, 68)";
+        score = 20;
+        setHeading(hintVal, "Guess the number");
+        setHeading(scoreVal, "Score");
+        setButtonColor("#f38539");
+        win = false;
+        value = Math.trunc(Math.random() * 10 + 1);
+        console.log("Value: " + value);
+      });
+    </script>
+  </body>
+</html>
