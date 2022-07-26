@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="en-US">
   <head>
     <title>Highscore</title>
     <meta name="viewport" content="width=device-width, initial-scale=0.5" />
@@ -71,9 +71,10 @@
       }
 
       .ok {
-        width: 100px;
-        height: 40px;
+        width: 120px;
+        height: 60px;
         text-align: center;
+        font-size: 20px;
       }
 
       .labelGuess {
@@ -88,8 +89,9 @@
 
       .again {
         margin: 20px;
-        height: 40px;
-        width: 100px;
+        height: 60px;
+        width: 120px;
+        font-size: 20px;
       }
 
       h2 {
@@ -112,7 +114,6 @@
       .lr {
         height: 100%;
         width: 50%;
-        /*background-color: yellow;*/
         float: right;
         align-items: center;
         justify-content: center;
@@ -122,20 +123,129 @@
       }
 
       .input {
+        width: 120px;
         border-radius: 20px;
         border-color: black;
         background-color: gray;
         color: whitesmoke;
       }
 
-      /*.flexSep {
-        flex-basis: 100%;
-      }*/
+      .hint {
+        width: 100%;
+        text-align: center;
+      }
+
+      .mute {
+        margin-top: 20px;
+        width: 90px;
+        height: 90px;
+        display: block;
+        margin-left: auto;
+        margin-right: auto;
+        border: 2px solid whitesmoke;
+        border-radius: 45px;
+      }
+
+      .modal {
+        width: 100%;
+        height: 100%;
+      }
+
+      .modalOverlay {
+        width: 100%;
+        height: 100%;
+        background-color: black;
+        opacity: 70%;
+        position: absolute;
+        z-index: 20;
+      }
+
+      .modalView {
+        width: 60%;
+        height: 80%;
+        z-index: 20;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background-color: whitesmoke;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-evenly;
+        align-items: center;
+        border-radius: 20px;
+        flex-wrap: nowrap;
+        opacity: 95%;
+      }
+
+      .modalDiv1 h2 {
+        font-size: 10px;
+        margin: 15px;
+        padding: 10px;
+        background-color: #f38539;
+        border: 2px solid whitesmoke;
+        border-radius: 20px;
+        display: block;
+      }
+
+      .modalDiv2 p {
+        width: 80%;
+        margin: auto;
+        text-align: center;
+        font-size: 17px;
+        padding: 20px;
+        border: 2px solid orange;
+        border-radius: 30px;
+      }
+
+      .modalButton {
+        background-color: rgb(56, 56, 56);
+        color: whitesmoke;
+        width: 80px;
+        height: 40px;
+      }
+
+      .modalButton:hover {
+        background-color: #f38539;
+        text-decoration: underline;
+      }
+
+      .hidden {
+        display: none;
+      }
+
+      @media screen and (min-width: 344px) {
+        .modalDiv1 h2 {
+          font-size: 25px;
+        }
+      }
     </style>
   </head>
   <body>
+    <div class="modal">
+      <div class="modalOverlay"></div>
+      <div class="modalView">
+        <div class="modalDiv1">
+          <h2>Welcome to Guessing Game! 😎</h2>
+        </div>
+        <div class="modalDiv2">
+          <p>
+            A random number will be generated and the player has to guess it
+            correctly.<br /><br />
+            The player is allowed only ten tries till score reaches zero and it
+            is Game Over.<br /><br />
+            Enter your guess in the text box and click submit.
+            <br /><br />
+            Fasih Abdullah (Lazer430)
+          </p>
+        </div>
+        <div class="modalDiv3">
+          <button class="modalButton">Close</button>
+        </div>
+      </div>
+    </div>
     <div class="upper">
-      <h1 class="hint">Guess the number</h1>
+      <h1 class="hint">Guess a number [1...15]</h1>
     </div>
     <div class="middle">
       <h1 class="score">score</h1>
@@ -159,13 +269,15 @@
         </div>
         <div class="lrd">
           <button class="again">Again?</button>
+          <hr />
+          <img class="mute" src="unmute.png" />
         </div>
       </div>
     </div>
     <script>
       "use strict";
       //vars
-      let score = 20;
+      let score = 10;
       let highscore = 0;
       let value = 0;
       //objs
@@ -174,16 +286,43 @@
       let hintVal = document.querySelector(".hint");
       let inputVal = 0;
       let win = false;
+      let musicPlaying = false;
+      let isMuted = false;
 
       const submitAudio = new Audio();
       const winAudio = new Audio();
       const loseAudio = new Audio();
+      const backgroundMusic = new Audio();
+      const againAudio = new Audio();
+
       submitAudio.src = "click.wav";
+      submitAudio.volume = 1;
       winAudio.src = "win.wav";
+      winAudio.volume = 1;
       loseAudio.src = "lose.wav";
+      loseAudio.volume = 1;
+      backgroundMusic.src = "piano.mp3";
+      backgroundMusic.volume = 0.5;
+      againAudio.src = "again.wav";
+      againAudio.volume = 1;
+
+      backgroundMusic.loop = true;
+
+      document.addEventListener("click", function () {
+        if (!musicPlaying) {
+          backgroundMusic.play();
+          console.log("Music Started");
+          musicPlaying = true;
+        }
+      });
 
       function setHeading(place, heading) {
         place.textContent = heading;
+      }
+
+      function mute() {
+        if (isMuted) backgroundMusic.pause();
+        else backgroundMusic.play();
       }
 
       function setButtonColor(color) {
@@ -193,14 +332,14 @@
         }
       }
 
-      value = Math.trunc(Math.random() * 10 + 1);
+      value = Math.trunc(Math.random() * 15 + 1);
       console.log("Value: " + value);
 
       document.querySelector(".ok").addEventListener("click", function () {
         inputVal = Number(document.querySelector(".input").value);
         console.log("Input: " + inputVal);
 
-        submitAudio.play();
+        if (!isMuted) submitAudio.play();
 
         if (score > 0) {
           if (inputVal === value || win) {
@@ -210,7 +349,7 @@
             win = true;
             setButtonColor("Whitesmoke");
             setHeading(highscoreVal, highscore);
-            win.play();
+            if (!isMuted) winAudio.play();
           } else if (inputVal > value) {
             setHeading(hintVal, "Too high! 📈");
             document.querySelector("body").style.backgroundColor = "Red";
@@ -227,22 +366,49 @@
           if (score === 0) {
             setHeading(hintVal, "Game Over! 😔");
             setButtonColor("Whitesmoke");
-            loseAudio.play();
+            if (!isMuted) loseAudio.play();
           }
+          document.querySelector(".input").value = null;
         }
       });
 
       document.querySelector(".again").addEventListener("click", function () {
+        if (!isMuted) againAudio.play();
         document.querySelector("body").style.backgroundColor =
           "rgb(68, 68, 68)";
-        score = 20;
+        score = 10;
         setHeading(hintVal, "Guess the number");
         setHeading(scoreVal, "Score");
         setButtonColor("#f38539");
         win = false;
-        value = Math.trunc(Math.random() * 10 + 1);
+        value = Math.trunc(Math.random() * 15 + 1);
         console.log("Value: " + value);
       });
+
+      document.querySelector(".mute").addEventListener("click", function () {
+        console.log("mute toggled");
+        if (!isMuted) {
+          document.querySelector(".mute").src = "mute.png";
+          isMuted = true;
+          mute();
+        } else {
+          document.querySelector(".mute").src = "unmute.png";
+          isMuted = false;
+          mute();
+        }
+      });
+
+      document
+        .querySelector(".modalButton")
+        .addEventListener("click", function () {
+          document.querySelector(".modal").classList.add("hidden");
+        });
+
+      document
+        .querySelector(".modalOverlay")
+        .addEventListener("click", function () {
+          document.querySelector(".modal").classList.add("hidden");
+        });
     </script>
   </body>
 </html>
